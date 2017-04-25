@@ -8,3 +8,12 @@ C:\Users\Gerardo\documents\visual studio 2015\Projects\Sudoku\Sudoku\obj\Debug\S
 C:\Users\Gerardo\documents\visual studio 2015\Projects\Sudoku\Sudoku\obj\Debug\Sudoku.pdb
 C:\Users\Gerardo\documents\visual studio 2015\Projects\Sudoku\Sudoku\obj\Debug\Sudoku.Form1.resources
 C:\Users\Gerardo\documents\visual studio 2015\Projects\Sudoku\Sudoku\obj\Debug\Sudoku.Program.resources
+C:\Users\geardo\Documents\GitHub\Sudoku_GUI\Sudoku\bin\Debug\Sudoku.exe.config
+C:\Users\geardo\Documents\GitHub\Sudoku_GUI\Sudoku\obj\Debug\Sudoku.exe
+C:\Users\geardo\Documents\GitHub\Sudoku_GUI\Sudoku\obj\Debug\Sudoku.pdb
+C:\Users\geardo\Documents\GitHub\Sudoku_GUI\Sudoku\bin\Debug\Sudoku.exe
+C:\Users\geardo\Documents\GitHub\Sudoku_GUI\Sudoku\bin\Debug\Sudoku.pdb
+C:\Users\geardo\Documents\GitHub\Sudoku_GUI\Sudoku\obj\Debug\Sudoku.csprojResolveAssemblyReference.cache
+C:\Users\geardo\Documents\GitHub\Sudoku_GUI\Sudoku\obj\Debug\Sudoku.Program.resources
+C:\Users\geardo\Documents\GitHub\Sudoku_GUI\Sudoku\obj\Debug\Sudoku.Properties.Resources.resources
+C:\Users\geardo\Documents\GitHub\Sudoku_GUI\Sudoku\obj\Debug\Sudoku.csproj.GenerateResource.Cache
