@@ -40,17 +40,18 @@ namespace Sudoku
                 p.RowStyles.Add(r);
             }
 
-            CallCombo(p);
+            SetUpPuzzle(p);
         
             p.Size = new System.Drawing.Size(630, 630);
 
             this.ClientSize = new System.Drawing.Size(700, 700);
             this.Controls.Add(p);
+            p.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
 
             p.Paint += new PaintEventHandler(PaintPanel);
         }
 
-        public void CallCombo(TableLayoutPanel p)
+        public void SetUpPuzzle(TableLayoutPanel p)
         {
             String[,] puzzle = ReadFile();
 
@@ -58,11 +59,29 @@ namespace Sudoku
             {
                 for(int col = 0; col < p.ColumnCount; col++)
                 {
-                    AddComboBox(p, col, row);
+                    if (puzzle[row, col] == "0")
+                        AddComboBox(p, col, row);
+                    else
+                        AddLabel(p, col, row, puzzle[row, col]);
                     Console.Write(puzzle[row, col]);
                 }
                 Console.Write(Environment.NewLine);
             }
+        }
+
+        public void AddLabel(TableLayoutPanel p, int c, int r, String s)
+        {
+            Label lbl = new Label();
+
+            lbl.Height = 40;
+            lbl.Width = 45;
+            lbl.Anchor = (AnchorStyles.None);
+            lbl.Padding = new Padding(10);
+            lbl.Font = new Font(FontFamily.GenericSansSerif, 15.0f, FontStyle.Regular);
+            lbl.Text = s;
+
+            p.Controls.Add(lbl, c, r);
+
         }
         public void AddComboBox(TableLayoutPanel p, int c, int r)
         {
@@ -98,29 +117,43 @@ namespace Sudoku
 
         public String[,] ReadFile()
         {
-            String file = @"C:\Users\geardo\Documents\GitHub\Sudoku_GUI\Sudoku\puzzle.txt";
+            String file = @"..\..\puzzle.txt";
             String[] parsed;
 
             String line = null;
 
             String[,] items = new String[9, 9];
             int j = 0;
-
-            using (StreamReader sr = new StreamReader(file))
+            try
             {
-                while(!sr.EndOfStream)
+                using (StreamReader sr = new StreamReader(file))
                 {
-                    line = sr.ReadLine();
-                    parsed = line.Split(' ');
-                    
-                    for(int i = 0; i < items.GetLength(0); i++)
+                    while (!sr.EndOfStream)
                     {
-                        items[j, i] = parsed[i];
+                        line = sr.ReadLine();
+                        parsed = line.Split(' ');
+
+                        for (int i = 0; i < items.GetLength(0); i++)
+                        {
+                            try
+                            {
+                                items[j, i] = parsed[i];
+
+                            }
+                            catch (IndexOutOfRangeException e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                        }
+                        j++;
                     }
-                    j++;
                 }
+                return items;
+            }catch(FileNotFoundException e)
+            {
+                Console.WriteLine(e.Message);
             }
-            return items;
+            return null;
         }
 
         private void PaintPanel(object sender, PaintEventArgs e)
