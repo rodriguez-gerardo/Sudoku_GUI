@@ -203,10 +203,26 @@ namespace Sudoku
                 }
             }
 
+            int ulr = (row/3)*3;
+            int ulc = (col/3)*3;
+
+            for(int i = ulr; i < ulr + 3; i++)
+            {
+                for(int j = ulc; j < ulc+3; j++)
+                {
+                    if (i == row && j == col) continue;
+
+                    int v = puzzle[i, j];
+                    if (v != 0)
+                        if (gvalues[v - 1])
+                            gvalues[v - 1] = false;                  
+                }
+            }
+
             for(int i = 0; i < 9; i++)
             {
 
-                if (rvalues[i] && cvalues[i] /*&& gvalues[i]*/) s += " " + (i + 1);
+                if (rvalues[i] && cvalues[i] && gvalues[i]) s += " " + (i + 1);
                    
        
             }
