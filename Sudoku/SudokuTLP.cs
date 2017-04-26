@@ -11,11 +11,12 @@ namespace Sudoku
 {
     class SudokuTLP : Form
     {
+        TableLayoutPanel p = new TableLayoutPanel();
+        int[,] puzzle;
 
 
         public SudokuTLP()
         {
-            TableLayoutPanel p = new TableLayoutPanel();
 
             p.ColumnCount = 9;
             p.RowCount = 9;
@@ -53,23 +54,21 @@ namespace Sudoku
 
         public void SetUpPuzzle(TableLayoutPanel p)
         {
-            String[,] puzzle = ReadFile();
+            puzzle = ReadFile();
 
             for (int row = 0; row < p.RowCount; row++)
             {
                 for(int col = 0; col < p.ColumnCount; col++)
                 {
-                    if (puzzle[row, col] == "0")
-                        AddComboBox(p, col, row);
+                    if (puzzle[row, col] == 0)
+                        AddComboBox(col, row);
                     else
-                        AddLabel(p, col, row, puzzle[row, col]);
-                    Console.Write(puzzle[row, col]);
+                        AddLabel(col, row, puzzle[row, col]);
                 }
-                Console.Write(Environment.NewLine);
             }
         }
 
-        public void AddLabel(TableLayoutPanel p, int c, int r, String s)
+        public void AddLabel(int c, int r, int s)
         {
             Label lbl = new Label();
 
@@ -78,17 +77,17 @@ namespace Sudoku
             lbl.Anchor = (AnchorStyles.None);
             lbl.Padding = new Padding(10);
             lbl.Font = new Font(FontFamily.GenericSansSerif, 15.0f, FontStyle.Regular);
-            lbl.Text = s;
+            lbl.Text = s.ToString();
 
             p.Controls.Add(lbl, c, r);
 
         }
-        public void AddComboBox(TableLayoutPanel p, int c, int r)
+        public void AddComboBox(int c, int r)
         {
             ComboBox cb = new ComboBox();
 
             cb.Height = 40;
-            cb.Width = 45;
+            cb.Width = 45; 
             cb.Anchor = (AnchorStyles.None);
             cb.DropDownStyle = ComboBoxStyle.DropDownList;
             cb.Font = new Font(FontFamily.GenericSansSerif, 15.0f, FontStyle.Regular);
@@ -111,18 +110,122 @@ namespace Sudoku
 
             cb.DataSource = num;
 
+            cb.MouseDown += new MouseEventHandler(ConstraintsMessage);
+            cb.SelectedValueChanged += new EventHandler(UpdateItems);
+
             p.Controls.Add(cb, c, r);
         }
 
+        private void UpdateItems(Object sender, EventArgs e)
+        {
+            ComboBox cb = (ComboBox)sender;
+            int r = p.GetRow(cb);
+            int c = p.GetColumn(cb);
 
-        public String[,] ReadFile()
+            try
+            {
+                puzzle[r, c] = (int)cb.SelectedIndex;
+
+            }catch(InvalidCastException ex)
+            {
+                Console.WriteLine(ex);
+            }
+            for (int i = 0; i < 9; i++)
+            {
+                for(int j = 0; j < 9; j++)
+                {
+                    Console.Write(puzzle[i, j]);
+                }
+                Console.Write(Environment.NewLine);
+            }
+            Console.Write(Environment.NewLine);
+            Console.Write(Environment.NewLine);
+
+
+        }
+
+        private void ConstraintsMessage(Object sender, MouseEventArgs e)
+        {
+            Point mouseDownLocation = new Point(e.X, e.Y);
+
+            if(e.Button == MouseButtons.Right)
+            {
+                String result = "Contstraints: " + ConstraintsChecker((ComboBox)sender);
+                MessageBox.Show(result, "Constraint Hints");
+
+            }
+                    
+        }
+
+        private String ConstraintsChecker(ComboBox cb)
+        {
+            int row = p.GetRow(cb);
+            int col = p.GetColumn(cb);
+
+            String s = "";
+            bool[] rvalues = new bool[9];
+            bool[] cvalues = new bool[9];
+            bool[] gvalues = new bool[9];
+
+
+            for (int i = 0; i < 9; i++)
+            {
+                rvalues[i] = true;
+                cvalues[i] = true;
+                gvalues[i] = true;
+            }
+
+            for(int i = 0; i < 9; i++)
+            {
+                if(i != col)
+                {
+                    int v = puzzle[row, i];
+
+                    if(v != 0)
+                    {
+                        if (rvalues[v - 1])
+                            rvalues[v - 1] = false;
+                    }
+                }
+            }
+
+            for(int i = 0; i < 9; i++)
+            {
+                if(i != row)
+                {
+                    int v = puzzle[i, col];
+
+                    if(v != 0)
+                    {
+                        if (cvalues[v - 1])
+                            cvalues[v - 1] = false;
+                    }
+                }
+            }
+
+            for(int i = 0; i < 9; i++)
+            {
+
+                if (rvalues[i] && cvalues[i] /*&& gvalues[i]*/) s += " " + (i + 1);
+                   
+       
+            }
+
+     
+
+
+
+                return s;
+        }
+
+        public int[,] ReadFile()
         {
             String file = @"..\..\puzzle.txt";
             String[] parsed;
 
             String line = null;
 
-            String[,] items = new String[9, 9];
+            int[,] items = new int[9, 9];
             int j = 0;
             try
             {
@@ -137,7 +240,7 @@ namespace Sudoku
                         {
                             try
                             {
-                                items[j, i] = parsed[i];
+                                items[j, i] = Int32.Parse(parsed[i]);
 
                             }
                             catch (IndexOutOfRangeException e)
