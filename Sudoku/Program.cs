@@ -1,4 +1,12 @@
-﻿using System;
+﻿/*
+ *Gerardo Rodriguez 
+ * COMP 585
+ * 4/26/2017
+ * Covington
+ * Sudoku Project
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;

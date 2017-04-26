@@ -1,4 +1,12 @@
-﻿using System;
+﻿/*
+ *Gerardo Rodriguez 
+ * COMP 585
+ * 4/26/2017
+ * Covington
+ * Sudoku Project
+ */
+
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Drawing;
@@ -12,15 +20,19 @@ namespace Sudoku
     class SudokuTLP : Form
     {
         TableLayoutPanel p = new TableLayoutPanel();
+
+        //2D Array will hold sudoku puzzle
         int[,] puzzle;
 
 
         public SudokuTLP()
         {
 
-            p.ColumnCount = 9;
+            //Number of rows and columns for TableLayoutPanel
+            p.ColumnCount = 9; 
             p.RowCount = 9;
 
+            //Initialize panel rows and columns
             for (int i = 0; i < p.ColumnCount; i++)
             {
                 ColumnStyle c = new ColumnStyle();
@@ -41,21 +53,24 @@ namespace Sudoku
                 p.RowStyles.Add(r);
             }
 
+            //This will call function which will call to read sudoku file, and add labels and combo boxes accordingly
             SetUpPuzzle(p);
         
-            p.Size = new System.Drawing.Size(630, 630);
+            p.Size = new System.Drawing.Size(630, 630); //Size of panel
 
-            this.ClientSize = new System.Drawing.Size(700, 700);
+            this.ClientSize = new System.Drawing.Size(700, 700);//Size of Window
             this.Controls.Add(p);
-            p.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
+            p.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;//Lines out all cells in panel
 
-            p.Paint += new PaintEventHandler(PaintPanel);
-        }
+            p.Paint += new PaintEventHandler(PaintPanel);//Paints partition to seperate cells into 9 subgroups
+        } //Set up TableLayoutPanel and call functions
 
         public void SetUpPuzzle(TableLayoutPanel p)
         {
-            puzzle = ReadFile();
+            puzzle = ReadFile(); //Call to read file
 
+            /*This loop will determine if a combobox (if value is 0) or label should be
+            place in respective cell*/
             for (int row = 0; row < p.RowCount; row++)
             {
                 for(int col = 0; col < p.ColumnCount; col++)
@@ -63,29 +78,32 @@ namespace Sudoku
                     if (puzzle[row, col] == 0)
                         AddComboBox(col, row);
                     else
-                        AddLabel(col, row, puzzle[row, col]);
+                        AddLabel(col, row);
                 }
             }
-        }
+        }//Calls ReadFile and calls function to add either label or ComboBox
 
-        public void AddLabel(int c, int r, int s)
+        public void AddLabel(int c, int r)
         {
-            Label lbl = new Label();
+            Label lbl = new Label(); //Initialize new lable
 
+            //Set label properties
             lbl.Height = 40;
             lbl.Width = 45;
             lbl.Anchor = (AnchorStyles.None);
-            lbl.Padding = new Padding(10);
+            lbl.Padding = new Padding(10);//Centers label in cell
             lbl.Font = new Font(FontFamily.GenericSansSerif, 15.0f, FontStyle.Regular);
-            lbl.Text = s.ToString();
+            lbl.Text = puzzle[r, c].ToString();
 
             p.Controls.Add(lbl, c, r);
 
-        }
+        } //Adds label to cell
         public void AddComboBox(int c, int r)
         {
+            //initialize ComboBox
             ComboBox cb = new ComboBox();
 
+            //set ComboBox properties
             cb.Height = 40;
             cb.Width = 45; 
             cb.Anchor = (AnchorStyles.None);
@@ -95,6 +113,7 @@ namespace Sudoku
             cb.DisplayMember = "Text";
             cb.ValueMember = "Value";
 
+            //Index values
             var num = new[] {
                 new {Text = " ", Value = "0" },
                 new {Text = "1", Value = "1" },
@@ -110,64 +129,54 @@ namespace Sudoku
 
             cb.DataSource = num;
 
-            cb.MouseDown += new MouseEventHandler(ConstraintsMessage);
-            cb.SelectedValueChanged += new EventHandler(UpdateItems);
+            cb.MouseDown += new MouseEventHandler(ConstraintsMessage); //When ComboBox is right-clicked we get to see constraints
+            cb.SelectedValueChanged += new EventHandler(UpdateItems); //Updates puzzle value for corresponding index
 
             p.Controls.Add(cb, c, r);
-        }
+        } //Adds ComboBox to cell
 
         private void UpdateItems(Object sender, EventArgs e)
         {
-            ComboBox cb = (ComboBox)sender;
+            ComboBox cb = (ComboBox)sender; //Case object to ComboBox
             int r = p.GetRow(cb);
             int c = p.GetColumn(cb);
 
             try
             {
-                puzzle[r, c] = (int)cb.SelectedIndex;
+                puzzle[r, c] = (int)cb.SelectedIndex;//Places changed value into indexed array
 
             }catch(InvalidCastException ex)
             {
                 Console.WriteLine(ex);
-            }
-            for (int i = 0; i < 9; i++)
-            {
-                for(int j = 0; j < 9; j++)
-                {
-                    Console.Write(puzzle[i, j]);
-                }
-                Console.Write(Environment.NewLine);
-            }
-            Console.Write(Environment.NewLine);
-            Console.Write(Environment.NewLine);
-
-
-        }
+            }  
+        } //Updates array when ComboBox value is changed
 
         private void ConstraintsMessage(Object sender, MouseEventArgs e)
         {
             Point mouseDownLocation = new Point(e.X, e.Y);
 
-            if(e.Button == MouseButtons.Right)
+            if(e.Button == MouseButtons.Right) //Right-button click
             {
-                String result = "Contstraints: " + ConstraintsChecker((ComboBox)sender);
+                String result = "Contstraints: " + ConstraintsChecker((ComboBox)sender); //Displayes constraints
                 MessageBox.Show(result, "Constraint Hints");
 
             }
                     
-        }
+        } //Diplays message box with Constraints
 
         private String ConstraintsChecker(ComboBox cb)
         {
             int row = p.GetRow(cb);
             int col = p.GetColumn(cb);
 
-            String s = "";
+            String s = ""; //String with constraints to be returned
+
+            //bool values to determine what numbers are used by giving them value of false
             bool[] rvalues = new bool[9];
             bool[] cvalues = new bool[9];
             bool[] gvalues = new bool[9];
 
-
+            //Initialize all bool values to true
             for (int i = 0; i < 9; i++)
             {
                 rvalues[i] = true;
@@ -175,9 +184,10 @@ namespace Sudoku
                 gvalues[i] = true;
             }
 
+            //gives false value to respected index based on what numbers are in column
             for(int i = 0; i < 9; i++)
             {
-                if(i != col)
+                if(i != col) 
                 {
                     int v = puzzle[row, i];
 
@@ -189,7 +199,9 @@ namespace Sudoku
                 }
             }
 
-            for(int i = 0; i < 9; i++)
+            //gives false value to respected index based on what numbers are in row
+
+            for (int i = 0; i < 9; i++)
             {
                 if(i != row)
                 {
@@ -206,7 +218,9 @@ namespace Sudoku
             int ulr = (row/3)*3;
             int ulc = (col/3)*3;
 
-            for(int i = ulr; i < ulr + 3; i++)
+            //gives false value to respected index based on what numbers are in subgrid
+
+            for (int i = ulr; i < ulr + 3; i++)
             {
                 for(int j = ulc; j < ulc+3; j++)
                 {
@@ -219,20 +233,15 @@ namespace Sudoku
                 }
             }
 
+            /*Checks all constraints and adds them to string
+              this will prevent duplicates*/
             for(int i = 0; i < 9; i++)
             {
-
                 if (rvalues[i] && cvalues[i] && gvalues[i]) s += " " + (i + 1);
-                   
-       
             }
 
-     
-
-
-
                 return s;
-        }
+        } //Looks for all constraints, called by ConstraintsMessage
 
         public int[,] ReadFile()
         {
@@ -241,7 +250,7 @@ namespace Sudoku
 
             String line = null;
 
-            int[,] items = new int[9, 9];
+            int[,] items = new int[9, 9]; //2D array to be returned and populated in puzzle array
             int j = 0;
             try
             {
@@ -250,13 +259,13 @@ namespace Sudoku
                     while (!sr.EndOfStream)
                     {
                         line = sr.ReadLine();
-                        parsed = line.Split(' ');
+                        parsed = line.Split(' ');//String places into string array
 
                         for (int i = 0; i < items.GetLength(0); i++)
                         {
                             try
                             {
-                                items[j, i] = Int32.Parse(parsed[i]);
+                                items[j, i] = Int32.Parse(parsed[i]);//String converted to int
 
                             }
                             catch (IndexOutOfRangeException e)
@@ -273,7 +282,7 @@ namespace Sudoku
                 Console.WriteLine(e.Message);
             }
             return null;
-        }
+        } //Reads sudoku puzzle file
 
         private void PaintPanel(object sender, PaintEventArgs e)
         {
@@ -289,7 +298,7 @@ namespace Sudoku
                 g.DrawLine(pen, 0, 212, 630, 212);
                 g.DrawLine(pen, 0, 212 * 2, 630, 212 * 2);
             }
-        }
+        } //paints subdivision lines
 
     }
 }
